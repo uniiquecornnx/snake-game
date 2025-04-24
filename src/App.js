@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import sdk from "@farcaster/frame-sdk";
-import { useEffect, useState } from "react";
 
 
 const App = () => {
