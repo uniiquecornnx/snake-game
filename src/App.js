@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
+import sdk from "@farcaster/frame-sdk";
+import { useEffect, useState } from "react";
+
 
 const App = () => {
   const [snake, setSnake] = useState([[0, 0]]);
@@ -92,6 +95,19 @@ const App = () => {
     setIsGameOver(false);
     setScore(0);
   };
+  const [isSDKLoaded, setIsSDKLoaded] = useState(false);
+
+useEffect(() => {
+  const load = async () => {
+    await sdk.context; // You can store this if you want context info
+    sdk.actions.ready(); // This hides the loading screen in Farcaster
+  };
+
+  if (!isSDKLoaded) {
+    setIsSDKLoaded(true);
+    load();
+  }
+}, [isSDKLoaded]);
 
   return (
     <div className="game-container">
