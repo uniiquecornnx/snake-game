@@ -1,0 +1,17 @@
+{
+    "accountAssociation": {
+      "header": "",
+      "payload": "",
+      "signature": ""
+    },
+    "frame": {
+      "name": "Snake Game",
+      "version": "0.0.1",
+      "iconUrl": "https://vercel.com/uniiquecornnxs-projects/snake-game/icon.png",
+      "homeUrl": "https://vercel.com/uniiquecornnxs-projects/snake-game",
+      "splashImageUrl": "https://vercel.com/uniiquecornnxs-projects/snake-game/icon.png",
+      "splashBackgroundColor": "#f7f7f7",
+      "webhookUrl": "https://vercel.com/uniiquecornnxs-projects/snake-game/api/webhook"
+    }
+  }
+  
