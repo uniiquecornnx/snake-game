@@ -29,3 +29,17 @@
 .game-over {
   margin-top: 20px;
 }
+
+.controls {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.controls button {
+  margin: 5px;
+  font-size: 24px;
+  padding: 10px 15px;
+  cursor: pointer;
+}

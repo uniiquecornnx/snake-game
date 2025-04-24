@@ -113,6 +113,17 @@ const App = () => {
           </div>
         ))}
       </div>
+
+      {/* 👇 Always visible controls */}
+      <div className="controls">
+        <button onClick={() => setDirection('UP')}>⬆️</button>
+        <div>
+          <button onClick={() => setDirection('LEFT')}>⬅️</button>
+          <button onClick={() => setDirection('DOWN')}>⬇️</button>
+          <button onClick={() => setDirection('RIGHT')}>➡️</button>
+        </div>
+      </div>
+
       {isGameOver && (
         <div className="game-over">
           <h2>Game Over!!!!</h2>
