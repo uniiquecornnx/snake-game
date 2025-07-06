@@ -2,7 +2,13 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import sdk from "@farcaster/frame-sdk";
 import LeaderboardPopup from './LeaderboardPopup';
+import { addScore, subscribeToLeaderboard } from './leaderboardService';
+import WalletConnect from './WalletConnect';
+import { WagmiProvider } from 'wagmi';
+import { config } from './wagmiConfig';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
+const queryClient = new QueryClient();
 
 const App = () => {
   const [snake, setSnake] = useState([[0, 0]]);
@@ -11,42 +17,41 @@ const App = () => {
   const [isGameOver, setIsGameOver] = useState(false);
   const [score, setScore] = useState(0);
   const [leaderboard, setLeaderboard] = useState([]);
-  const [playerName, setPlayerName] = useState('');
-  const [showNameInput, setShowNameInput] = useState(true);
+  const [walletAddress, setWalletAddress] = useState('');
+  const [showWalletConnect, setShowWalletConnect] = useState(true);
   const [gameStarted, setGameStarted] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
 
-  // Load leaderboard from localStorage on component mount
+  // Subscribe to real-time leaderboard updates
   useEffect(() => {
-    const savedLeaderboard = localStorage.getItem('snakeGameLeaderboard');
-    if (savedLeaderboard) {
-      setLeaderboard(JSON.parse(savedLeaderboard));
-    }
-  }, []);
+    const unsubscribe = subscribeToLeaderboard((scores) => {
+      setLeaderboard(scores);
+    });
 
-  // Save leaderboard to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem('snakeGameLeaderboard', JSON.stringify(leaderboard));
-  }, [leaderboard]);
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, []);
 
   // Update leaderboard when game ends
   useEffect(() => {
     if (isGameOver && score > 0) {
-      const newScore = {
-        name: playerName,
-        score: score,
-        date: new Date().toLocaleDateString(),
-        time: new Date().toLocaleTimeString()
+      const saveScoreToDatabase = async () => {
+        try {
+          await addScore(walletAddress, score);
+          setShowPopup(true);
+        } catch (error) {
+          console.error('Failed to save score:', error);
+          // Fallback to showing popup even if save fails
+          setShowPopup(true);
+        }
       };
       
-      const updatedLeaderboard = [...leaderboard, newScore]
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 10); // Keep only top 10 scores
-      
-      setLeaderboard(updatedLeaderboard);
-      setShowPopup(true);
+      saveScoreToDatabase();
     }
-  }, [isGameOver, score, leaderboard, playerName]);
+  }, [isGameOver, score, walletAddress]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -115,7 +120,7 @@ const App = () => {
           Math.floor(Math.random() * 10),
           Math.floor(Math.random() * 10)
         ]);
-        setScore(score + 1);
+        setScore(prevScore => prevScore + 1);
       } else {
         newSnake.shift();
       }
@@ -133,7 +138,7 @@ const App = () => {
     setDirection('RIGHT');
     setIsGameOver(false);
     setScore(0);
-    setShowNameInput(true);
+    setShowWalletConnect(true);
     setGameStarted(false);
     setShowPopup(false);
   };
@@ -142,140 +147,125 @@ const App = () => {
     setShowPopup(false);
   };
 
-  const startGame = () => {
-    if (playerName.trim()) {
-      setShowNameInput(false);
+  const handleWalletConnected = (address) => {
+    if (address) {
+      setWalletAddress(address);
+      setShowWalletConnect(false);
     }
   };
 
   const startSnakeGame = () => {
     setGameStarted(true);
   };
+
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
 
-useEffect(() => {
-  const load = async () => {
-    await sdk.context; // You can store this if you want context info
-    sdk.actions.ready(); // This hides the loading screen in Farcaster
-  };
+  useEffect(() => {
+    const load = async () => {
+      await sdk.context;
+      sdk.actions.ready();
+    };
 
-  if (!isSDKLoaded) {
-    setIsSDKLoaded(true);
-    load();
-  }
-}, [isSDKLoaded]);
+    if (!isSDKLoaded) {
+      setIsSDKLoaded(true);
+      load();
+    }
+  }, [isSDKLoaded]);
 
   return (
-    <div className="game-container">
-      <h1>Snake Game 🐍</h1>
-      
-      {showNameInput ? (
-        <div className="name-input-screen">
-          <h2>Enter Your Name</h2>
-          <div className="name-input-container">
-            <input
-              type="text"
-              placeholder="Enter your name..."
-              value={playerName}
-              onChange={(e) => setPlayerName(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && startGame()}
-              className="name-input"
-              maxLength={20}
-            />
-            <button 
-              onClick={startGame}
-              disabled={!playerName.trim()}
-              className="start-game-btn"
-            >
-              Start Game
-            </button>
-          </div>
-        </div>
-      ) : (
-        <>
-          <h2>Score: {score}</h2>
-          <p className="player-info">Playing as: <strong>{playerName}</strong></p>
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <div className="game-container">
+          <h1>Snake Game 🐍</h1>
           
-          {!gameStarted ? (
-            <div className="game-start-screen">
-              <div className="start-game-container">
-                <h3>Ready to Play?</h3>
-                <p>Click the button below to start the snake game!</p>
-                <button 
-                  onClick={startSnakeGame}
-                  className="start-snake-btn"
-                >
-                  🐍 Start Snake Game 🐍
-                </button>
-              </div>
-            </div>
+          {showWalletConnect ? (
+            <WalletConnect onWalletConnected={handleWalletConnected} />
           ) : (
-            <div className="game-section">
-              <div className="board">
-                {[...Array(10)].map((_, row) => (
-                  <div className="row" key={row}>
-                    {[...Array(10)].map((_, col) => {
-                      const isSnake = snake.some(([x, y]) => x === col && y === row);
-                      const isFood = food[0] === col && food[1] === row;
-                      return (
-                        <div
-                          key={col}
-                          className={`cell ${isSnake ? 'snake' : ''} ${isFood ? 'food' : ''}`}
-                        />
-                      );
-                    })}
+            <>
+              <h2>Score: {score}</h2>
+              <p className="player-info">Playing as: <strong>{walletAddress}</strong></p>
+              
+              {!gameStarted ? (
+                <div className="game-start-screen">
+                  <div className="start-game-container">
+                    <h3>Ready to Play?</h3>
+                    <p>Click the button below to start the snake game!</p>
+                    <button 
+                      onClick={startSnakeGame}
+                      className="start-snake-btn"
+                    >
+                      🐍 Start Snake Game 🐍
+                    </button>
                   </div>
-                ))}
-              </div>
-
-              {/* 👇 Always visible controls */}
-              <div className="controls">
-                <button 
-                  onClick={() => setDirection('UP')}
-                  disabled={!gameStarted}
-                  className={!gameStarted ? 'disabled' : ''}
-                >
-                  ⬆️
-                </button>
-                <div>
-                  <button 
-                    onClick={() => setDirection('LEFT')}
-                    disabled={!gameStarted}
-                    className={!gameStarted ? 'disabled' : ''}
-                  >
-                    ⬅️
-                  </button>
-                  <button 
-                    onClick={() => setDirection('DOWN')}
-                    disabled={!gameStarted}
-                    className={!gameStarted ? 'disabled' : ''}
-                  >
-                    ⬇️
-                  </button>
-                  <button 
-                    onClick={() => setDirection('RIGHT')}
-                    disabled={!gameStarted}
-                    className={!gameStarted ? 'disabled' : ''}
-                  >
-                    ➡️
-                  </button>
                 </div>
-              </div>
-            </div>
-          )}
-        </>
-      )}
+              ) : (
+                <div className="game-section">
+                  <div className="board">
+                    {[...Array(10)].map((_, row) => (
+                      <div className="row" key={row}>
+                        {[...Array(10)].map((_, col) => {
+                          const isSnake = snake.some(([x, y]) => x === col && y === row);
+                          const isFood = food[0] === col && food[1] === row;
+                          return (
+                            <div
+                              key={col}
+                              className={`cell ${isSnake ? 'snake' : ''} ${isFood ? 'food' : ''}`}
+                            />
+                          );
+                        })}
+                      </div>
+                    ))}
+                  </div>
 
-      {showPopup && (
-        <LeaderboardPopup
-          leaderboard={leaderboard}
-          playerName={playerName}
-          score={score}
-          onRestart={restartGame}
-          onClose={closePopup}
-        />
-      )}
-    </div>
+                  <div className="controls">
+                    <button 
+                      onClick={() => setDirection('UP')}
+                      disabled={!gameStarted}
+                      className={!gameStarted ? 'disabled' : ''}
+                    >
+                      ⬆️
+                    </button>
+                    <div>
+                      <button 
+                        onClick={() => setDirection('LEFT')}
+                        disabled={!gameStarted}
+                        className={!gameStarted ? 'disabled' : ''}
+                      >
+                        ⬅️
+                      </button>
+                      <button 
+                        onClick={() => setDirection('DOWN')}
+                        disabled={!gameStarted}
+                        className={!gameStarted ? 'disabled' : ''}
+                      >
+                        ⬇️
+                      </button>
+                      <button 
+                        onClick={() => setDirection('RIGHT')}
+                        disabled={!gameStarted}
+                        className={!gameStarted ? 'disabled' : ''}
+                      >
+                        ➡️
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {showPopup && (
+            <LeaderboardPopup
+              leaderboard={leaderboard}
+              playerName={walletAddress}
+              score={score}
+              onRestart={restartGame}
+              onClose={closePopup}
+            />
+          )}
+        </div>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 };
 
