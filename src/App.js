@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import sdk from "@farcaster/frame-sdk";
+import LeaderboardPopup from './LeaderboardPopup';
 
 
 const App = () => {
@@ -10,10 +11,10 @@ const App = () => {
   const [isGameOver, setIsGameOver] = useState(false);
   const [score, setScore] = useState(0);
   const [leaderboard, setLeaderboard] = useState([]);
-  const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [playerName, setPlayerName] = useState('');
   const [showNameInput, setShowNameInput] = useState(true);
   const [gameStarted, setGameStarted] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
 
   // Load leaderboard from localStorage on component mount
   useEffect(() => {
@@ -43,6 +44,7 @@ const App = () => {
         .slice(0, 10); // Keep only top 10 scores
       
       setLeaderboard(updatedLeaderboard);
+      setShowPopup(true);
     }
   }, [isGameOver, score, leaderboard, playerName]);
 
@@ -131,9 +133,13 @@ const App = () => {
     setDirection('RIGHT');
     setIsGameOver(false);
     setScore(0);
-    setShowLeaderboard(false);
     setShowNameInput(true);
     setGameStarted(false);
+    setShowPopup(false);
+  };
+
+  const closePopup = () => {
+    setShowPopup(false);
   };
 
   const startGame = () => {
@@ -204,105 +210,70 @@ useEffect(() => {
               </div>
             </div>
           ) : (
-            <div className="game-layout">
-              <div className="game-section">
-                <div className="board">
-                  {[...Array(10)].map((_, row) => (
-                    <div className="row" key={row}>
-                      {[...Array(10)].map((_, col) => {
-                        const isSnake = snake.some(([x, y]) => x === col && y === row);
-                        const isFood = food[0] === col && food[1] === row;
-                        return (
-                          <div
-                            key={col}
-                            className={`cell ${isSnake ? 'snake' : ''} ${isFood ? 'food' : ''}`}
-                          />
-                        );
-                      })}
-                    </div>
-                  ))}
-                </div>
+            <div className="game-section">
+              <div className="board">
+                {[...Array(10)].map((_, row) => (
+                  <div className="row" key={row}>
+                    {[...Array(10)].map((_, col) => {
+                      const isSnake = snake.some(([x, y]) => x === col && y === row);
+                      const isFood = food[0] === col && food[1] === row;
+                      return (
+                        <div
+                          key={col}
+                          className={`cell ${isSnake ? 'snake' : ''} ${isFood ? 'food' : ''}`}
+                        />
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
 
-                {/* 👇 Always visible controls */}
-                <div className="controls">
+              {/* 👇 Always visible controls */}
+              <div className="controls">
+                <button 
+                  onClick={() => setDirection('UP')}
+                  disabled={!gameStarted}
+                  className={!gameStarted ? 'disabled' : ''}
+                >
+                  ⬆️
+                </button>
+                <div>
                   <button 
-                    onClick={() => setDirection('UP')}
+                    onClick={() => setDirection('LEFT')}
                     disabled={!gameStarted}
                     className={!gameStarted ? 'disabled' : ''}
                   >
-                    ⬆️
+                    ⬅️
                   </button>
-                  <div>
-                    <button 
-                      onClick={() => setDirection('LEFT')}
-                      disabled={!gameStarted}
-                      className={!gameStarted ? 'disabled' : ''}
-                    >
-                      ⬅️
-                    </button>
-                    <button 
-                      onClick={() => setDirection('DOWN')}
-                      disabled={!gameStarted}
-                      className={!gameStarted ? 'disabled' : ''}
-                    >
-                      ⬇️
-                    </button>
-                    <button 
-                      onClick={() => setDirection('RIGHT')}
-                      disabled={!gameStarted}
-                      className={!gameStarted ? 'disabled' : ''}
-                    >
-                      ➡️
-                    </button>
-                  </div>
+                  <button 
+                    onClick={() => setDirection('DOWN')}
+                    disabled={!gameStarted}
+                    className={!gameStarted ? 'disabled' : ''}
+                  >
+                    ⬇️
+                  </button>
+                  <button 
+                    onClick={() => setDirection('RIGHT')}
+                    disabled={!gameStarted}
+                    className={!gameStarted ? 'disabled' : ''}
+                  >
+                    ➡️
+                  </button>
                 </div>
               </div>
-
-            <div className="leaderboard-section">
-              <div className="leaderboard-header">
-                <h3>🏆 Leaderboard</h3>
-                <button 
-                  className="toggle-leaderboard"
-                  onClick={() => setShowLeaderboard(!showLeaderboard)}
-                >
-                  {showLeaderboard ? 'Hide' : 'Show'} Leaderboard
-                </button>
-              </div>
-              
-              {showLeaderboard && (
-                <div className="leaderboard">
-                  {leaderboard.length === 0 ? (
-                    <p className="no-scores">No scores yet! Play to set a record!</p>
-                  ) : (
-                    <div className="scores-list">
-                      {leaderboard.map((entry, index) => (
-                        <div key={index} className="score-entry">
-                          <span className="rank">#{index + 1}</span>
-                          <span className="player-name">{entry.name}</span>
-                          <span className="score-value">{entry.score} 🍎</span>
-                          <span className="score-date">{entry.date}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-          )}
-
-          {isGameOver && (
-            <div className="game-over">
-              <h2>Game Over!!!!</h2>
-              <p>Final Score: {score} 🍎</p>
-              <p>Player: <strong>{playerName}</strong></p>
-              {leaderboard.length > 0 && leaderboard[0].score === score && (
-                <p className="new-record">🎉 New High Score! 🎉</p>
-              )}
-              <button onClick={restartGame}>Restart</button>
             </div>
           )}
         </>
+      )}
+
+      {showPopup && (
+        <LeaderboardPopup
+          leaderboard={leaderboard}
+          playerName={playerName}
+          score={score}
+          onRestart={restartGame}
+          onClose={closePopup}
+        />
       )}
     </div>
   );

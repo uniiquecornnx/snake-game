@@ -1,0 +1,264 @@
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.popup-content {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.popup-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 28px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 30px;
+  cursor: pointer;
+  color: #666;
+  padding: 5px;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.close-btn:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.game-result {
+  text-align: center;
+  margin-bottom: 25px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+}
+
+.final-score {
+  font-size: 24px;
+  margin: 0 0 10px 0;
+  color: #2c5aa0;
+}
+
+.player-name {
+  font-size: 16px;
+  margin: 0 0 15px 0;
+  color: #666;
+}
+
+.new-record {
+  color: #ff6b6b;
+  font-weight: bold;
+  font-size: 18px;
+  margin: 10px 0 0 0;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.leaderboard-section {
+  margin-bottom: 25px;
+}
+
+.leaderboard-section h3 {
+  text-align: center;
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 20px;
+}
+
+.no-scores {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  margin: 0;
+  padding: 20px;
+}
+
+.scores-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.score-entry {
+  display: grid;
+  grid-template-columns: 40px 1fr 70px 80px;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 15px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+  border: 2px solid transparent;
+}
+
+.score-entry:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.score-entry.current-player {
+  border-color: #4CAF50;
+  background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+}
+
+.score-entry:nth-child(1) {
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  font-weight: bold;
+}
+
+.score-entry:nth-child(2) {
+  background: linear-gradient(135deg, #c0c0c0, #e0e0e0);
+  font-weight: bold;
+}
+
+.score-entry:nth-child(3) {
+  background: linear-gradient(135deg, #cd7f32, #daa520);
+  font-weight: bold;
+}
+
+.rank {
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  font-size: 14px;
+}
+
+.player-name {
+  font-weight: bold;
+  color: #2c5aa0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+.score-value {
+  font-weight: bold;
+  color: #2c5aa0;
+  text-align: center;
+  font-size: 14px;
+}
+
+.score-date {
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+}
+
+.popup-actions {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 2px solid #f0f0f0;
+}
+
+.restart-btn {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  min-width: 200px;
+}
+
+.restart-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+  background: linear-gradient(135deg, #45a049, #4CAF50);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .popup-content {
+    padding: 20px;
+    margin: 20px;
+    max-height: 90vh;
+  }
+  
+  .popup-header h2 {
+    font-size: 24px;
+  }
+  
+  .final-score {
+    font-size: 20px;
+  }
+  
+  .score-entry {
+    grid-template-columns: 35px 1fr 60px 70px;
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+  
+  .restart-btn {
+    padding: 12px 24px;
+    font-size: 16px;
+    min-width: 180px;
+  }
+} 
