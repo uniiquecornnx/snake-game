@@ -1,5 +1,5 @@
 import { createConfig, http } from 'wagmi';
-import { base, mainnet, polygon } from 'wagmi/chains';
+import { base, mainnet, polygon } from 'viem/chains';
 import { injected } from 'wagmi/connectors';
 
 export const config = createConfig({

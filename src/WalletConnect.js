@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAccount, useConnect, useDisconnect, useChainId, useSwitchChain } from 'wagmi';
-import { base } from 'wagmi/chains';
+import { base } from 'viem/chains';
 import './WalletConnect.css';
 
 const WalletConnect = ({ onWalletConnected }) => {

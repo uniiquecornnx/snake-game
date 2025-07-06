@@ -1,27 +1,28 @@
-// Import the functions you need from the SDKs you need
+// Firebase configuration using environment variables
+// Create a .env file in your project root with the following:
+// REACT_APP_FIREBASE_API_KEY=your_api_key
+// REACT_APP_FIREBASE_AUTH_DOMAIN=your_auth_domain
+// REACT_APP_FIREBASE_PROJECT_ID=your_project_id
+// REACT_APP_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+// REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+// REACT_APP_FIREBASE_APP_ID=your_app_id
+// REACT_APP_FIREBASE_MEASUREMENT_ID=your_measurement_id
+
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyA68CedXyHne4o62ept1WY6phrlBujJ6ps",
-  authDomain: "snake-game-593c3.firebaseapp.com",
-  projectId: "snake-game-593c3",
-  storageBucket: "snake-game-593c3.firebasestorage.app",
-  messagingSenderId: "729245130892",
-  appId: "1:729245130892:web:f94720bad85d5bff669ba9",
-  measurementId: "G-Q5TNK8MSDZ"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY || "",
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || "",
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID || "",
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET || "",
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID || "",
+  appId: process.env.REACT_APP_FIREBASE_APP_ID || "",
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID || ""
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
-
-// Initialize Firestore
 export const db = getFirestore(app);
-
 export default app;
